@@ -84,7 +84,12 @@
       #content {
         font-family: Helvetica, sans-serif;
         margin: auto;
-        max-width: 1000px;
+        max-width: 1030px;
+        border: 2px solid #8B8B81;
+        border-radius: 12px;
+        background-color: #F5F5F5;
+        padding: 20px;
+        text-align: left;
       }
       #passphrase {
         width: 100%; 
@@ -103,9 +108,11 @@
 
       <h1>Export Counterparty Addresses &amp; Keys</h1>
       <p>This script outputs addresses (legacy and segwit) with private keys.</p>
-      <p>The input passphrase (seed) must be a classic 12-word passphrase from Counterwallet, FreeWallet.io, Rare Pepe Wallet, etc.<br>A BIP39 seed will not work!</p>
-      <p><b>WARNING:</b> Unlike modern seeds, the Counterwallet format does not use a cheksum. If you enter a wrong word, e.g. <i>'sad'</i> insted of <i>'said'</i> you will generate a wrong list of addresses. Always double check!</p>
-      <label for="network">Network</label><br>
+      <p>The input passphrase (seed) must be a classic 12-word passphrase from Counterwallet, FreeWallet.io, Rare Pepe Wallet, etc.</p>
+      <p>A BIP39 seed will not work.</p>
+      <p><br><b>WARNING #1:</b> If you enter a wrong word, e.g. <i>'sad'</i> insted of <i>'said'</i> you will generate a wrong list of addresses. Always double check!</p>
+      <p><b>WARNING #2:</b> It is recommended to <a href="https://github.com/Jpja/XCP-Export-Segwit">download</a> the code and run it on an offline computer.</p>
+      <label for="network"><br>Network</label><br>
       <select name="network" id="network"><br>
         <option value="bitcoin" selected="selected">Bitcoin</option>
         <option value="testnet">Testnet</option>
@@ -138,7 +145,7 @@
       <pre><code id="output">&nbsp;<br>&nbsp;<br>&nbsp;<br>&nbsp;<br></code></pre>
 
       <div id="footer">
-        Made by JP Janssen<br>
+        <br>Made by JP Janssen<br>
         Source code on <a href="https://github.com/Jpja/XCP-Export-Segwit">Github</a><br>
         MIT license<br><br>
         <a href="https://jpjanssen.com/donation-dispensers-for-my-xcp-projects/">Donate</a><br>

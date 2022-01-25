@@ -1,8 +1,8 @@
 # Export Counterparty Addresses & Keys
 
-This script outputs a list of addresses (legacy and segwit) with private keys.
+Outputs a list of addresses (legacy and segwit) with private keys.
 
-The output format is CSV for easy import to wallet, e.g. to Electrum, or to spreadsheet.
+The output format is CSV for easy import to wallet, e.g. to Electrum, or spreadsheet.
 
 The input passphrase (seed) must be a classic 12-word passphrase from Counterwallet, FreeWallet.io, Rare Pepe Wallet, IndieSquare, Freeport, Countertools, Vanilla Wallet, etc.
 

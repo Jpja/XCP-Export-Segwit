@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <head>
+    <title>Export Counterparty Addresses &amp; Keys</title>
+    <script type="text/javascript" src="js/bitcore-lib.min.js"></script>
+    <script type="text/javascript" src="js/bitcore-message.min.js"></script>
+    <script type="text/javascript" src="js/util.bitcore.js"></script>
+    <script type="text/javascript" src="js/bitcoinjs-lib.min.js"></script>
+    <script type="text/javascript" src="js/mnemonic.js"></script>
+    <script type="text/javascript" src="js/xcp-tools-passphrase.js"></script>
+
+    <script>
+
+      function createAddress(passphrase, i, network) {
+        wallet           = Mnemonic.fromWords(passphrase.trim().split(" ")).toHex(),
+          network        = bitcore.Networks[network],
+          seed           = bitcore.HDPrivateKey.fromSeed(wallet, network),
+          derive         = seed.derive("m/0'/0/" + i),
+          addr_legacy    = bitcore.Address(derive.publicKey, network).toString(),
+          privkey_legacy = derive.privateKey.toWIF(),
+          derive         = seed.derive("m/0'/0/" + i),
+          addr_segwit    = bitcoinjs.payments.p2wpkh({ pubkey: derive.publicKey.toBuffer(), network: bitcoinjs.networks[network] }).address,
+          privkey_segwit = 'p2wpkh:'+privkey_legacy;
+        return([addr_legacy, addr_segwit, privkey_legacy, privkey_segwit]);
+      }
+
+      function createAddressList() {
+        let net  = document.getElementById('network').value;
+        let pp   = document.getElementById('passphrase').value;
+        let addr = document.getElementById('amount').value;
+        let sep  = document.getElementById('separator').value;
+        let chk_ind = document.querySelector('#display0').checked;
+        let chk_leg = document.querySelector('#display1').checked;
+        let chk_seg = document.querySelector('#display2').checked;
+        let chk_key = document.querySelector('#display3').checked;
+        let chk_key_seg = document.querySelector('#display4').checked;
+        let chk_show_pp = document.querySelector('#display5').checked;
+        let chk_show_ch = document.querySelector('#display6').checked;
+        let out = '';
+        let br = '<br>';
+
+        //Converts string to lowercase and eliminates unwanted spaces and signs
+        pp = cleanPPformat(pp);
+
+        //Check if Counterparty PP
+        if(!isValidPP(pp)) {
+          let out = 'Passphrase is not valid';
+          document.getElementById('output').innerHTML = out;
+          return;
+        }
+
+        //Output passphrase
+        if (chk_show_pp) out += 'Passphrase: ' + pp + br;
+
+        //Output column headers
+        if (chk_show_ch) {
+          let row = [];
+          if (chk_ind) row.push('Count');
+          if (chk_leg) row.push('Legacy Address');
+          if (chk_seg) row.push('Segwit Address');
+          if (chk_key) row.push('Private Key');
+          if (chk_key_seg) row.push('Private Key w/ Segwit Prefix');
+          out += row.join(sep) + br;
+        }
+
+        //Output addresses + keys
+        for(let i=0;i<addr;i++){
+          let a = createAddress(pp, i, net);
+          let row = [];
+          if (chk_ind) row.push(String(i+1));
+          if (chk_leg) row.push(a[0]);
+          if (chk_seg) row.push(a[1]);
+          if (chk_key) row.push(a[2]);
+          if (chk_key_seg) row.push(a[3]);
+          out += row.join(sep) + br;
+        }
+        document.getElementById('output').innerHTML = out;
+      }
+
+    </script>
+
+    <style>
+      #content {
+        font-family: Helvetica, sans-serif;
+        margin: auto;
+        max-width: 1000px;
+      }
+      #passphrase {
+        width: 100%; 
+      }
+      #network, input[type=submit] {
+        width: 8em; 
+      }
+      #amount, #separator {
+        width: 3.5em; 
+      }
+    </style>
+
+  </head>
+  <body>
+    <div id="content">
+
+      <h1>Export Counterparty Addresses &amp; Keys</h1>
+      <p>This script outputs addresses (legacy and segwit) with private keys.</p>
+      <p>The input passphrase (seed) must be a classic 12-word passphrase from Counterwallet, FreeWallet.io, Rare Pepe Wallet, etc.<br>A BIP39 seed will not work!</p>
+      <p><b>WARNING:</b> Unlike modern seeds, the Counterwallet format does not use a cheksum. If you enter a wrong word, e.g. <i>'sad'</i> insted of <i>'said'</i> you will generate a wrong list of addresses. Always double check!</p>
+      <label for="network">Network</label><br>
+      <select name="network" id="network"><br>
+        <option value="bitcoin" selected="selected">Bitcoin</option>
+        <option value="testnet">Testnet</option>
+      </select><br><br>
+      <label for="passphrase">Passphrase</label><br>
+      <input type="text" id="passphrase" name="passphrase"><br><br>
+      <label for="amount">Addresses</label><br>
+      <input type="number" id="amount" name="amount" value="20"><br><br>
+      <label for="separator">Separator</label><br>
+      <input type="text" id="separator" name="separator" value=","><br><br>
+
+      <b>Display</b><br>
+      <input type="checkbox" id="display0" name="display0" value="display0" checked>
+      <label for="display0"> Count</label><br>
+      <input type="checkbox" id="display1" name="display1" value="display1" checked>
+      <label for="display1"> Legacy Addresses</label><br>
+      <input type="checkbox" id="display2" name="display2" value="display2" checked>
+      <label for="display2"> Segwit Addresses</label><br>
+      <input type="checkbox" id="display3" name="display3" value="display3" checked>
+      <label for="display3"> Private Keys</label><br>
+      <input type="checkbox" id="display4" name="display4" value="display4">
+      <label for="display4"> Private Keys w/ Segwit Prefix</label><br>
+      <input type="checkbox" id="display5" name="display5" value="display5" checked>
+      <label for="display5"> Passphrase</label><br>
+      <input type="checkbox" id="display6" name="display6" value="display6" checked>
+      <label for="display6"> Column Headers</label>
+
+      <br><br><input type="submit" value="Submit" onclick="createAddressList()">
+
+      <pre><code id="output">&nbsp;<br>&nbsp;<br>&nbsp;<br>&nbsp;<br></code></pre>
+
+      <div id="footer">
+        Made by JP Janssen<br>
+        Source code on <a href="https://github.com/Jpja/XCP-Export-Segwit">Github</a><br>
+        MIT license<br><br>
+        <a href="https://jpjanssen.com/donation-dispensers-for-my-xcp-projects/">Donate</a><br>
+        BTC: bc1qg8vldv8kk4mqafs87z2yv0xpq4wr4csucr3cj7<br>
+        DOGE: DChdsuLuEvAPZb9ZXpiEpimgidSJ5VqShq<br>
+        ETH: 0x4144CbaF54044510AB2F2f3c51061Dd5558cD604<br>
+        <i>BTC and DOGE addresses have dispensers installed.<br>
+          You automatically get vintage tokens in return.</i>
+      </div>
+
+    </div>
+  </body>
+</html>
